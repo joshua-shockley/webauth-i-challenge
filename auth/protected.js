@@ -13,7 +13,7 @@ module.exports = function protected(req, res, next) {
                     next();
                     // res.status(200).json({ message: 'now set this to next(); its working' });
                 } else {
-                    res.status(401).json({ message: 'credentials arent right' });
+                    res.status(401).json({ message: 'you shall not pass!' });
                 };
             })
             .catch(error => {

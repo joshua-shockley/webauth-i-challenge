@@ -30,6 +30,18 @@ server.get('/api/users', (req, res) => {
         });
 });
 
+server.get('/api/users/:id', protected, (req, res) => {
+    const id = req.params.id;
+    Users.findById(id)
+        .then(user => {
+            res.status(200).json(user);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+
+
 //get users w/ hash
 server.get('/api/users/loggedIn', protected, (req, res) => {
     Users.find()
@@ -80,5 +92,6 @@ server.post('/api/login', (req, res) => {
     };
 });
 
+
 const port = process.env.PORT || 6000;
-server.listen(port, () => console.log(`\n   running on port ${port}  \n`));
+server.listen(port, () => console.log(`\n running on port ${port} \n`));
