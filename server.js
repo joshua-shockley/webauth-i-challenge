@@ -1,16 +1,16 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-
-const session = require('express-session');
-
+const session = require('express-session'); //must be listed before knexSessionStore and knexConfig-it wont see it if its not in order
+const knexSessionStore = require('connect-session-knex')(session);
+const knexConfig = require('./data/dbConfig.js');
 const bcrypt = require('bcryptjs');
 
 
 const db = require('./data/dbConfig.js');
 const Users = require('./helperModel/user-model.js');
 const protected = require('./auth/protected.js');
-const UserAuthRouter = require('./helperModel/userRouter.js');
+const UserAuthRouter = require('./helperModel/userAuthRouter.js');
 const server = express();
 
 const sessionConfig = {
@@ -24,11 +24,11 @@ const sessionConfig = {
     resave: false, // do not recreate session when changed?
     saveUninitialized: true, // prevents (when false in production) from creating cookies automatically without client permission it a legal thing look up GDPR laws
     //this is where the store goes if gonna use it.
-    //store: new knexSessionStore({
-    //     knex: knexConfig,//need to make this above
-    //     createtable: true,//needs to be in lowercase for some odd reason
-    //     clearInterval: 100 * 60 * 30,// same for time expiration as above for maxAge.. this clears the database of the unused cookies.    
-    // })
+    store: new knexSessionStore({
+        knex: knexConfig, //need to make this above
+        createtable: true, //needs to be in lowercase for some odd reason
+        clearInterval: 100 * 60 * 30, // same for time expiration as above for maxAge.. this clears the database of the unused cookies.    
+    })
 };
 
 
@@ -50,19 +50,6 @@ server.get('/', (req, res) => {
 
 // get users
 server.get('/api/users', (req, res) => {
-    Users.find()
-        .then(all => {
-            res.status(200).json(all);
-        })
-        .catch(error => {
-            res.status(500).json(error);
-        });
-});
-
-
-
-//get users w/ hash
-server.get('/api/users/loggedIn', protected, (req, res) => {
     Users.find()
         .then(all => {
             res.status(200).json(all);
