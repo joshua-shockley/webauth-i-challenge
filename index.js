@@ -9,6 +9,7 @@ const Users = require('./helperModel/user-model.js');
 const protected = require('./auth/protected.js');
 const server = express();
 
+server.use(logger);
 server.use(helmet());
 server.use(express.json());
 server.use(cors());
@@ -35,6 +36,38 @@ server.get('/api/users/:id', protected, (req, res) => {
     Users.findById(id)
         .then(user => {
             res.status(200).json(user);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
+//PUT to update
+server.put('/api/users/:id', protected, (req, res) => {
+    const id = req.params.id;
+    let changes = req.body;
+    Users.findById(id)
+        .then(user => {
+            if (user) {
+                Users.update(changes, id)
+                    .then(updated => {
+                        res.status(201).json(updated);
+                    })
+            } else {
+                res.status(404).json({ message: 'could not find user with given id' });
+            };
+        })
+        .catch(error => {
+            console.log('in catch', id, changes);
+            res.status(500).json({ message: 'failed to update user' });
+        });
+});
+
+server.delete('/api/users/:id', (req, res) => {
+    const id = req.params.id;
+    Users.remove(id)
+        .then(gone => {
+
+            res.status(200).json(gone);
         })
         .catch(error => {
             res.status(500).json(error);
@@ -92,6 +125,11 @@ server.post('/api/login', (req, res) => {
     };
 });
 
+
+function logger(req, res, next) {
+    console.log(`[${new Date().toISOString()}] ${req.method} to ${req.url}`);
+    next();
+}
 
 const port = process.env.PORT || 6000;
 server.listen(port, () => console.log(`\n running on port ${port} \n`));
