@@ -36,9 +36,9 @@ const sessionConfig = {
 server.use(logger);
 server.use(helmet());
 server.use(express.json());
-server.use(cors());
 server.use(session(sessionConfig));
-
+server.use(cors());
+//issue with cors letting login work.... added cors depency and still having issue..need to look more.
 
 server.use('/api/auth/', protected, UserAuthRouter);
 
