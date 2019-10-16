@@ -5,6 +5,16 @@ const Users = require('./user-model.js');
 const router = express.Router();
 
 
+//get users w/ hash
+router.get('/users', (req, res) => {
+    Users.find()
+        .then(all => {
+            res.status(200).json(all);
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        });
+});
 
 router.get('/users/:id', (req, res) => {
     const id = req.params.id;
